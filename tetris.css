@@ -1,0 +1,102 @@
+.rect {
+    /*
+    width: 100px;
+    height: 100px;
+    */
+    background-color: darkgrey;
+    float: left;
+    position: absolute;
+
+    
+    -webkit-transition: all 0.01s;
+       -moz-transition: all 0.01s;
+        -ms-transition: all 0.01s;
+         -o-transition: all 0.01s;
+            transition: all 0.01s;
+}
+
+.I > * {
+    background-color: lightgrey;
+}
+
+.J > * {
+    background-color: skyblue;
+}
+
+.L > * {
+    background-color: orange;
+}
+
+.O > * {
+    background-color: yellow;
+}
+
+.S > * {
+    background-color: forestgreen;
+}
+
+.T > * {
+    background-color: purple;
+}
+
+.Z > * {
+    background-color: red;
+}
+
+#content {
+    display: inline-block;
+    margin: auto;
+/*    background-color: white;*/
+}
+
+header {
+/*    width: 50%;*/
+    display: inline-block
+    text-align: center;
+    padding: 20px 0px;
+}
+
+#main {
+    position: relative;
+    background-color: black;
+    float: left;
+}
+
+#sidebar {
+    float: left;
+    padding-left: 
+}
+
+#preview {
+    border-style: solid;
+    border-color: black;
+
+    position: relative;
+    background-color: black;
+/*    float: left;*/
+}
+
+#overlay {
+    position: absolute;
+    background-color: rgba(127, 127, 127, .75);
+}
+
+.touch {
+    touch-action: none;
+    text-align: center;
+}
+
+html {
+/*
+    display: flex;
+    background:#eeeeee;
+*/
+    padding: 0px;
+}
+
+body {
+    text-align: center;
+/*    width: 98%;*/
+    background:#eeeeee;
+    padding: 0px;
+}

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en"> 
+
+    <head>
+    
+        <title>Tetris Test</title>
+
+        <meta charset="UTF-8">
+        
+        <meta name="description" content="Tetris-like game project">
+
+        <meta name="author" content="Justin Wong">
+        
+        <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+        
+        <link rel="stylesheet" href="tetris.css">
+                
+    </head>
+
+    <body>
+        
+        <header id="header">
+            
+            <button onclick="restart()">restart</button>
+            
+            <button onclick="togglePause()">pause</button>
+                        
+        </header>
+        
+        <div id="content">
+        
+            <div id="main"></div>
+
+            <div id="overlay"></div>
+
+            <div id="sidebar">
+
+                <div id="preview"></div>
+
+                <p id="stats">Lines Cleared: <span id="lines"></span>
+                    <br />
+                    <br />
+                    Score: <span id="score"></span>
+                    <br />
+                </p>
+                
+                <p id="controls-desktop">
+<!--
+                    <br />
+                    Arrows
+-->
+                    <br />
+                    &#8592 | &#8595 | &#8594
+                    <br />
+                    <br />
+                    &#8593 = hard drop
+                    <br />
+                    <br />
+<!--                    Keys-->
+                    <br />
+                    [A], [D] =  &#8634, &#8635
+                    <br />
+                    <br />
+                    [P]ause, [R]estart
+                </p>
+                <p id="controls-mobile">
+                    <br />
+                    Tap screen
+                    <br />
+                    sections
+                    <br />
+                    <br />
+                    &#8592 | &#8595 | &#8594
+                    <br />
+                    <br />
+                    &#8634 | &#8595 | &#8635
+                    <br />
+                    <br />
+                    &#8634+&#8635 = hard drop
+                </p>
+            </div>
+
+<!--            <div id="lower">test</div>-->
+        
+        </div>
+        
+    </body>
+    
+    <script src="tetris.js" defer></script>
+    
+</html>
