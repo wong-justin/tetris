@@ -12,7 +12,7 @@
     </head>
     <body>
         <h1>P2P RTC Demo</h1>
-        <p>Uses a signaling server.</p>
+        <p>Open in a new tab, browser, or device! Uses a signaling server to broker a p2p connection.</p>
 
         <div>
             <label for="roomInput">Room:</label>
@@ -35,5 +35,21 @@
 
         <script src="/socket.io/socket.io.js"></script>
         <script src="/client.js"></script>
+        <script>
+            /* global rtcFunctions */
+            var roomInput = document.getElementById('roomInput');
+            var connectBtn = document.getElementById('connectBtn');
+            var sendBtn = document.getElementById('sendBtn');
+            var messageInput = document.getElementById('messageInput');
+            var messageOutput = document.getElementById('messageOutput');
+            
+            connectBtn.onclick = (e) => rtcFunctions.connect(roomInput.value);
+            sendBtn.onclick = (e) => rtcFunctions.send(messageInput.value);
+            rtcFunctions.init(
+                (data) => messageOutput.value = data, // onReceive
+                () => console.log('READY'), // onReady
+                () => console.log('CLOSED') // onClose
+            );
+        </script>
     </body>
 </html>

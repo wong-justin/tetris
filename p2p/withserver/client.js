@@ -8,7 +8,7 @@ var rtcApp = (() => {
     // main rtc variables
     var connection = null;
     var sendChannel = null;
-    var recieveChannel = null;
+    var receiveChannel = null;
 
     var iceCandidates = null; // queued until connection.remoteDescription is set
 
@@ -34,27 +34,23 @@ var rtcApp = (() => {
     var sendBtn = document.getElementById('sendBtn');
     var messageInput = document.getElementById('messageInput');
     var messageOutput = document.getElementById('messageOutput');
+    
+    // callbacks supplied from importer
+    var onReceive = null;
+    var onReady = null;
+    var onClose = null;
 
-    connectBtn.onclick = async (e) => {
-        // clear old connection if exists
+    async function connect(_room) {
         if (connection !== null) {
             await sendChannel.close();
         }
         console.log('connection is ' + (connection ? 'existing' : 'null'));
 
-        // tell signaling server I want to join or create this room
-        room = roomInput.value;
+        room = _room;
+        // tell signaling server I want to join or create this room 
         socket.emit('host or join', room);
     }
 
-    sendBtn.onclick = (e) => {
-        // send user input
-        try {
-            sendChannel.send(messageInput.value);
-        } catch (err) {
-            console.log(err.toString() + '\n and send channel is/was ' + JSON.stringify(sendChannel));
-        }
-    }
 
     ////// main p2p connection process
 
@@ -148,19 +144,25 @@ var rtcApp = (() => {
         }
         connection.oniceconnectionstatechange = (e) => {
             console.log('ice connection state: ' + connection.iceConnectionState);
-//            if (connection.iceConnectionState == 'failed') {
-//                // restart
-//                console.log('trying to restart ice');
-//                connection.createOffer({iceRestart: true}).then((offer) => {
-//                    console.log('i sent an offer');
-//                    console.log(offer);
-//    
-//                    connection.setLocalDescription(offer);
-//    
-//                    socket.emit('offer out', room, offer);
-//                })
-//                .catch(err => console.log(err));
-//            }
+            
+            switch (connection.iceConnectionState) {
+                case 'connected':
+                    onReady();
+                    break;
+//                case 'failed':
+//                    // restart
+//                    console.log('trying to restart ice');
+//                    connection.createOffer({iceRestart: true}).then((offer) => {
+//                        console.log('i sent an offer');
+//                        console.log(offer);
+//
+//                        connection.setLocalDescription(offer);
+//
+//                        socket.emit('offer out', room, offer);
+//                    })
+//                    .catch(err => console.log(err));
+//                    break;
+            }
         }
     }
 
@@ -168,21 +170,22 @@ var rtcApp = (() => {
 
         sendChannel = connection.createDataChannel('sendDataChannel', dataConstraint);
         sendChannel.onopen = () => console.log('send channel opened');
-    //    sendChannel.addEventListener('close', (e) => {
         sendChannel.onclose = async () => {
             // use this channel onclose listener to close whole connection
             console.log('send channel closed');
             await connection.close();
             connection = null;
+            
+            onClose();
         }
 
         connection.ondatachannel = (e) => {
-            recieveChannel = e.channel;
-            recieveChannel.onopen = () => console.log('recieve channel opened');
-            recieveChannel.onclose = () => console.log('receive channel closed');
+            receiveChannel = e.channel;
+            receiveChannel.onopen = () => console.log('receive channel opened');
+            receiveChannel.onclose = () => console.log('receive channel closed');
 
             // handle p2p data exchange
-            recieveChannel.onmessage = (e) => messageOutput.value = e.data;
+            receiveChannel.onmessage = (e) => onReceive(e.data);
         }   
     }
 
@@ -190,4 +193,15 @@ var rtcApp = (() => {
     socket.on('log', (message) => {
         console.log(message);
     });
+    
+    // exports
+    window.rtcFunctions = {
+        connect: (room) => connect(room),
+        send: (data) => sendChannel.send(data),
+        init: (_onReceive, _onReady, _onClose) => {
+            onReceive = _onReceive;
+            onReady = _onReady;
+            onClose = _onClose;
+        },
+    }
 })();
