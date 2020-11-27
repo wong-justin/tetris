@@ -44,10 +44,6 @@ function simulateConnection() {
     connectionA.onicecandidate = (e) => {
         if (e.candidate) {
             // give to B
-            
-//            var jsonifiedCandidate = JSON.stringify(e.candidate);
-//            console.log(jsonifiedCandidate);
-//            candidate = JSON.parse(jsonifiedCandidate);
 
             connectionB.addIceCandidate(e.candidate)
             .then(console.log('B got ice candidate'))
@@ -57,10 +53,6 @@ function simulateConnection() {
     connectionB.onicecandidate = (e) => {
         if (e.candidate) {
             // give to A
-            
-//            var jsonifiedCandidate = JSON.stringify(e.candidate);
-//            console.log(jsonifiedCandidate);
-//            candidate = JSON.parse(jsonifiedCandidate);
 
             connectionA.addIceCandidate(e.candidate)
             .then(console.log('A got ice candidate'))

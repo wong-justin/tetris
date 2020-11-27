@@ -1,9 +1,6 @@
 const express = require("express");
 const app = express();
-const server = app.listen(process.env.PORT)//3000);
-// const listener = app.listen(process.env.PORT, () => {
-//   console.log("Your app is listening on port " + listener.address().port);
-// });
+const server = app.listen(process.env.PORT);
 app.use(express.static('public'));
 
 const socketIO = require('socket.io');
@@ -13,10 +10,6 @@ io.sockets.on('connection', (socket) => {
     
     log('new connection: ' + socket.id + ' with app listening on ' + server.address().port);
     log('existing rooms: ' + JSON.stringify(io.sockets.adapter.rooms));
-
-    function log(message) {
-        socket.emit('log', 'Server log: ' + message);
-    }
     
     function leaveRooms() {
         var olds = [];
@@ -30,9 +23,8 @@ io.sockets.on('connection', (socket) => {
     }
     
     function join(room) {
-//        leaveRooms();
         socket.join(room);
-        log('you joined room ' + room + ' and left room(s) ' + olds.join(', '));
+        log('you joined room ' + room);
     }
 
     socket.on('host or join', (room) => { 
@@ -74,15 +66,13 @@ io.sockets.on('connection', (socket) => {
         
         socket.broadcast.to(room).emit('ice in', ice);
     });
-  
-    socket.on('message', (message) => {
-        console.log(message);
-        socket.emit('answer', 'ill help you');
-    });
+        
+    function log(message) {
+        socket.emit('log', 'Server log: ' + message);
+    }
 });
 
 
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/views/index.html');
 });
-

@@ -1,4 +1,4 @@
-/* gloabl io */
+/* global io */
 
 // p2p connection with a signaling server
 
@@ -12,11 +12,11 @@ var rtcApp = (() => {
 
     var iceCandidates = null; // queued until connection.remoteDescription is set
 
-    // rtc configuration settings; all null would still be ok
+    // rtc configuration settings
     var pcConfig = {
         'iceServers': [{
-            // STUN servers help matchmake different IPs.
-            // there's enough free STUN servers out there for a side project like this.
+            // STUN servers help matchmake different IPs (ie. peers on different networks).
+            // there's free STUN servers out there for a side project like this.
             'urls': 'stun:stun.l.google.com:19302'
 
             // not really any free TURN servers for backup when p2p fails, 
@@ -26,33 +26,27 @@ var rtcApp = (() => {
     var pcConstraint = null;
     var dataConstraint = null;
 
-    var room = null;    // custom room id; could be auto-generated
-
-    // widgets from html
-    var roomInput = document.getElementById('roomInput');
-    var connectBtn = document.getElementById('connectBtn');
-    var sendBtn = document.getElementById('sendBtn');
-    var messageInput = document.getElementById('messageInput');
-    var messageOutput = document.getElementById('messageOutput');
+    var room = null;    // custom room id; auto-generated would be nice
     
-    // callbacks supplied from importer
-    var onReceive = null;
-    var onReady = null;
-    var onClose = null;
+    // callbacks to be supplied from importer
+    var onReceive = (data) => log(data);
+    var onReady = () => log('READY');
+    var onClose = () => log('CLOSED');
+    
+    var logsOn = false;
 
+    ////// Main p2p connection process
+    
     async function connect(_room) {
         if (connection !== null) {
             await sendChannel.close();
         }
-        console.log('connection is ' + (connection ? 'existing' : 'null'));
+        log('connection is ' + (connection ? 'existing' : 'null'));
 
         room = _room;
         // tell signaling server I want to join or create this room 
         socket.emit('host or join', room);
     }
-
-
-    ////// main p2p connection process
 
     socket.on('initiate p2p', () => {
         // server wants you to start offer process; 
@@ -61,16 +55,16 @@ var rtcApp = (() => {
             initConnection();
         }
 
-        console.log('server told me to start p2p connection');
+        log('server told me to start p2p connection');
         // create an offer, set as this local and give to peer to set as his remote
         connection.createOffer().then((offer) => {
-            console.log('i sent an offer');
+            log('i sent an offer');
 
             connection.setLocalDescription(offer);
 
             socket.emit('offer out', room, offer);
         })
-        .catch(err => console.log(err));
+        .catch(err => log(err));
     });
 
     socket.on('offer in', (offer) => {
@@ -79,25 +73,25 @@ var rtcApp = (() => {
             initConnection();
         }
 
-        console.log('i received an offer');
+        log('i received an offer');
         connection.setRemoteDescription(offer);
 
         // create an answer, set as this local and give to peer to set as his remote
         connection.createAnswer().then((answer) => {
             connection.setLocalDescription(answer);
 
-            console.log('i sent an answer');
+            log('i sent an answer');
 
             socket.emit('answer out', room, answer);
 
             // dequeue ice now that this remote is set
             consumeQueuedIces();
         })
-        .catch(err => console.log(err));            
+        .catch(err => log(err));            
     });
 
     socket.on('answer in', (answer) => {
-        console.log('i received an answer');
+        log('i received an answer');
 
         connection.setRemoteDescription(answer);
 
@@ -105,7 +99,7 @@ var rtcApp = (() => {
         consumeQueuedIces();
     });
 
-    ////// ice
+    ////// Ice functions
 
     socket.on('ice in', (candidate) => {
         // add ice candidate from peer
@@ -115,8 +109,8 @@ var rtcApp = (() => {
         }   
         else {   // remote descrip is set so we can directly add ice now
             connection.addIceCandidate(candidate)
-            .then(console.log('added ice candidate'))
-            .catch((err) => console.log(err));
+            .then(log('added ice candidate'))
+            .catch((err) => log(err));
         }
     });
 
@@ -126,12 +120,13 @@ var rtcApp = (() => {
         for (var i = 0; i < len; i++) {
             await connection.addIceCandidate(iceCandidates[i]);
         }
-        console.log('added ' + len + ' ice candidates from queue');
+        log('added ' + len + ' ice candidates from queue');
     }
 
-    ////// init of connection and channels
+    ////// Init of connection and channels
 
     function initConnection() {
+        // called on every new connection session
 
         connection = new RTCPeerConnection(pcConfig, pcConstraint);
         iceCandidates = [];
@@ -143,7 +138,7 @@ var rtcApp = (() => {
             }
         }
         connection.oniceconnectionstatechange = (e) => {
-            console.log('ice connection state: ' + connection.iceConnectionState);
+            log('ice connection state: ' + connection.iceConnectionState);
             
             switch (connection.iceConnectionState) {
                 case 'connected':
@@ -169,10 +164,10 @@ var rtcApp = (() => {
     function initChannels() {
 
         sendChannel = connection.createDataChannel('sendDataChannel', dataConstraint);
-        sendChannel.onopen = () => console.log('send channel opened');
+        sendChannel.onopen = () => log('send channel opened');
         sendChannel.onclose = async () => {
             // use this channel onclose listener to close whole connection
-            console.log('send channel closed');
+            log('send channel closed');
             await connection.close();
             connection = null;
             
@@ -181,8 +176,8 @@ var rtcApp = (() => {
 
         connection.ondatachannel = (e) => {
             receiveChannel = e.channel;
-            receiveChannel.onopen = () => console.log('receive channel opened');
-            receiveChannel.onclose = () => console.log('receive channel closed');
+            receiveChannel.onopen = () => log('receive channel opened');
+            receiveChannel.onclose = () => log('receive channel closed');
 
             // handle p2p data exchange
             receiveChannel.onmessage = (e) => onReceive(e.data);
@@ -191,17 +186,24 @@ var rtcApp = (() => {
 
     // show server logs (debugging)
     socket.on('log', (message) => {
-        console.log(message);
+        log(message);
     });
+    
+    function log(message) {
+        if (logsOn) {
+            console.log(message);
+        }
+    }
     
     // exports
     window.rtcFunctions = {
         connect: (room) => connect(room),
         send: (data) => sendChannel.send(data),
-        init: (_onReceive, _onReady, _onClose) => {
-            onReceive = _onReceive;
-            onReady = _onReady;
-            onClose = _onClose;
+        init: ({_onReceive = null, _onReady = null, _onClose = null, _logsOn = false} = {}) => {
+            onReceive = _onReceive ? _onReceive : onReceive;
+            onReady = _onReady ? _onReady : onReady;
+            onClose = _onClose ? _onClose : onClose;
+            logsOn = _logsOn;
         },
     }
 })();

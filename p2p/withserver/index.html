@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="description" content="A cool thing made with Glitch">
+        <meta name="description" content="A demo of setting up a P2P RTC connection">
 
         <title>P2P RTC Demo</title>
 
@@ -12,7 +12,7 @@
     </head>
     <body>
         <h1>P2P RTC Demo</h1>
-        <p>Open in a new tab, browser, or device! Uses a signaling server to broker a p2p connection.</p>
+        <p>Open in a new tab, browser, or device! Uses a server (the same one hosting this page) to broker a p2p connection.</p>
 
         <div>
             <label for="roomInput">Room:</label>
@@ -23,6 +23,7 @@
         <div>
             <textarea id="messageInput"></textarea>
             <button id="sendBtn">Send</button>
+            <br />
             <textarea id="messageOutput"></textarea>
         </div>
     
@@ -45,11 +46,10 @@
             
             connectBtn.onclick = (e) => rtcFunctions.connect(roomInput.value);
             sendBtn.onclick = (e) => rtcFunctions.send(messageInput.value);
-            rtcFunctions.init(
-                (data) => messageOutput.value = data, // onReceive
-                () => console.log('READY'), // onReady
-                () => console.log('CLOSED') // onClose
-            );
+            rtcFunctions.init({
+                _onReceive: (data) => messageOutput.value = data,
+                logsOn: false
+            });
         </script>
     </body>
 </html>

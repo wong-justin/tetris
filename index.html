@@ -1,35 +1,35 @@
 <!DOCTYPE html>
-<html lang="en"> 
+<html lang="en">
 
     <head>
-    
-        <title>Tetris Test</title>
+
+        <title>Tetris</title>
 
         <meta charset="UTF-8">
-        
-        <meta name="description" content="Tetris-like game project">
+
+        <meta name="description" content="Tetris game in browser.">
 
         <meta name="author" content="Justin Wong">
-        
+
         <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-        
-        <link rel="stylesheet" href="tetris.css">
-                
+
+        <link rel="stylesheet" href="style.css">
+
     </head>
 
     <body>
-        
+
         <header id="header">
-            
-            <button onclick="restart()">restart</button>
-            
-            <button onclick="togglePause()">pause</button>
-                        
+
+            <button id="restartBtn">restart</button>
+
+            <button id="pauseBtn">pause</button>
+
         </header>
-        
+
         <div id="content">
-        
-            <div id="main"></div>
+
+            <canvas id="canvas"></div>
 
             <div id="overlay"></div>
 
@@ -43,7 +43,7 @@
                     Score: <span id="score"></span>
                     <br />
                 </p>
-                
+
                 <p id="controls-desktop">
 <!--
                     <br />
@@ -56,7 +56,7 @@
                     &#8593 = hard drop
                     <br />
                     <br />
-<!--                    Keys-->
+                    <!-- Keys -->
                     <br />
                     [A], [D] =  &#8634, &#8635
                     <br />
@@ -80,12 +80,14 @@
                 </p>
             </div>
 
-<!--            <div id="lower">test</div>-->
-        
         </div>
-        
+
     </body>
-    
-    <script src="tetris.js" defer></script>
-    
+
+    <script src="scripts/controls.js"></script>
+    <script src="scripts/metacontrols.js"></script>
+    <script src="scripts/game.js"></script>
+    <script src="scripts/gamedisplay.js"></script>
+    <script src="scripts/client.js"></script>
+
 </html>
