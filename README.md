@@ -1,6 +1,5 @@
-# Tetris
+# tetris
 
-https://wong-justin.glitch.me/tetrs.html
+https://wong-justin.github.io/tetris/
 
-Simple tetris game for the web.
-
+Simple tetris game in the browser.
